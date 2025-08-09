@@ -1,1142 +1,333 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vibemod - voice changer & soundboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        /* CSS Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-pink: #ff2d95;
-            --secondary-pink: #ff69b4;
-            --light-pink: #ffd1e8;
-            --dark-black: #121212;
-            --medium-black: #1e1e1e;
-            --light-black: #2d2d2d;
-            --white: #ffffff;
-            --gray: #888888;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--dark-black);
-            color: var(--white);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Typography */
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(90deg, var(--primary-pink), var(--secondary-pink));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        h2 {
-            font-size: 2rem;
-            color: var(--primary-pink);
-        }
-
-        h3 {
-            font-size: 1.5rem;
-            color: var(--white);
-        }
-
-        p {
-            margin-bottom: 1rem;
-        }
-
-        /* Layout */
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        header {
-            background-color: var(--medium-black);
-            padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--primary-pink);
-            text-decoration: none;
-            letter-spacing: -1px;
-        }
-
-        /* Navigation */
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: var(--white);
-            text-decoration: none;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-
-        nav a:hover {
-            background-color: var(--light-black);
-            color: var(--primary-pink);
-        }
-
-        nav a.active {
-            background-color: var(--primary-pink);
-            color: var(--dark-black);
-        }
-
-        /* Main Content */
-        main {
-            padding: 2rem 0;
-            min-height: calc(100vh - 140px);
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Cards and Buttons */
-        .card {
-            background-color: var(--medium-black);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn {
-            background-color: var(--primary-pink);
-            color: var(--white);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background-color: var(--secondary-pink);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 45, 149, 0.3);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--primary-pink);
-            color: var(--primary-pink);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--primary-pink);
-            color: var(--white);
-        }
-
-        /* Voice Changer Page */
-        .voice-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .voice-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .voice-option {
-            background-color: var(--light-black);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .voice-option:hover {
-            background-color: var(--primary-pink);
-            color: var(--dark-black);
-        }
-
-        .voice-option.selected {
-            background-color: var(--primary-pink);
-            color: var(--dark-black);
-            box-shadow: 0 0 0 2px var(--white);
-        }
-
-        .voice-option img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin-bottom: 0.5rem;
-            object-fit: cover;
-        }
-
-        .record-controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .record-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--primary-pink);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .record-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(255, 45, 149, 0.5);
-        }
-
-        .record-btn.recording {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 45, 149, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 45, 149, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 45, 149, 0); }
-        }
-
-        .record-btn i {
-            font-size: 2rem;
-            color: var(--white);
-        }
-
-        .audio-visualizer {
-            width: 100%;
-            height: 100px;
-            background-color: var(--light-black);
-            border-radius: 10px;
-            margin: 1.5rem 0;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .visualizer-bars {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 100%;
-            padding: 0 10px;
-        }
-
-        .visualizer-bar {
-            width: 5px;
-            background-color: var(--primary-pink);
-            border-radius: 5px 5px 0 0;
-            transition: height 0.1s ease;
-        }
-
-        /* Soundboard Page */
-        .sound-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .sound-card {
-            background-color: var(--light-black);
-            border-radius: 10px;
-            padding: 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sound-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .sound-card:hover .sound-play {
-            opacity: 1;
-        }
-
-        .sound-icon {
-            font-size: 2.5rem;
-            color: var(--primary-pink);
-            margin-bottom: 1rem;
-        }
-
-        .sound-name {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .sound-category {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .sound-play {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sound-play i {
-            font-size: 3rem;
-            color: var(--white);
-        }
-
-        .search-bar {
-            display: flex;
-            margin-bottom: 2rem;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 50px 0 0 50px;
-            background-color: var(--light-black);
-            color: var(--white);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-        }
-
-        .search-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--primary-pink);
-        }
-
-        .search-btn {
-            background-color: var(--primary-pink);
-            color: var(--white);
-            border: none;
-            border-radius: 0 50px 50px 0;
-            padding: 0 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .search-btn:hover {
-            background-color: var(--secondary-pink);
-        }
-
-        /* Community Sounds Page */
-        .filter-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-        }
-
-        .filter-tab {
-            padding: 0.5rem 1.5rem;
-            background-color: var(--light-black);
-            border-radius: 50px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .filter-tab:hover {
-            background-color: var(--light-pink);
-            color: var(--dark-black);
-        }
-
-        .filter-tab.active {
-            background-color: var(--primary-pink);
-            color: var(--white);
-        }
-
-        .community-sound {
-            display: flex;
-            background-color: var(--light-black);
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .community-sound:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .sound-info {
-            flex: 1;
-            padding: 1rem;
-        }
-
-        .sound-actions {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            gap: 1rem;
-        }
-
-        .sound-rating {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--gray);
-        }
-
-        .sound-rating i {
-            color: var(--primary-pink);
-        }
-
-        /* Footer */
-        footer {
-            background-color: var(--medium-black);
-            padding: 1.5rem 0;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            nav ul {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .voice-selector {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            }
-
-            .sound-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 45, 149, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-pink);
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Icons */
-        .icon {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            vertical-align: middle;
-        }
-
-        .icon-mic {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z'/%3E%3C/svg%3E");
-        }
-
-        .icon-stop {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M6 6h12v12H6z'/%3E%3C/svg%3E");
-        }
-
-        .icon-play {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
-        }
-
-        .icon-search {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>vibemod — voice changer</title>
+<style>
+  :root{
+    --bg:#070707;
+    --card:#0c0c0d;
+    --pink:#ff2fa6;
+    --muted:#bdbdbd;
+    --glass: rgba(255,255,255,0.02);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#050506);color:var(--muted);-webkit-font-smoothing:antialiased}
+  .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:22px;box-sizing:border-box}
+  .card{
+    width:380px;border-radius:14px;padding:18px;background:linear-gradient(180deg,var(--card),#070708);
+    box-shadow:0 12px 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03);
+  }
+  h1{margin:0;font-size:20px;color:#fff;font-weight:700;text-transform:lowercase}
+  p.sub{margin:4px 0 14px;color:#a9a9a9;font-size:12px}
+  .row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  select, button, input[type="range"]{appearance:none;border-radius:10px;padding:10px 12px;background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:var(--muted);outline:none;font-size:13px}
+  select{flex:1}
+  .btn{cursor:pointer;border:none;padding:10px 12px;border-radius:10px;font-weight:700;text-transform:lowercase}
+  .btn-primary{background:linear-gradient(90deg,var(--pink),#ff7ac7);color:#0b0b0b}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .slab{background:rgba(255,255,255,0.01);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);font-size:13px}
+  label{font-size:11px;color:#9d9d9d;text-transform:lowercase}
+  .controls{display:grid;gap:8px}
+  .soundboard{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .pad{min-width:84px;padding:8px;border-radius:8px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.02);text-align:center;color:var(--muted);cursor:pointer;font-size:13px}
+  .pad.playing{box-shadow:0 8px 20px rgba(255,47,166,0.12);border-color:rgba(255,47,166,0.18);color:white}
+  .status{margin-top:10px;font-size:12px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);text-align:center}
+  footer{margin-top:12px;font-size:11px;color:#888;text-align:center}
+  .raw{margin-top:8px;padding:10px;height:88px;overflow:auto;border-radius:8px;background:#050506;border:1px solid rgba(255,255,255,0.02);font-size:12px;color:#cfcfcf}
+  .muted{opacity:0.7}
+  .row .small{font-size:12px;padding:8px 10px}
+  .flex1{flex:1}
+  /* slider cosmetics */
+  input[type="range"]{height:34px}
+</style>
 </head>
 <body>
-    <header>
-        <div class="container header-content">
-            <a href="#" class="logo">vibemod</a>
-            <nav>
-                <ul>
-                    <li><a href="#" class="nav-link active" data-page="voice-changer">voice changer</a></li>
-                    <li><a href="#" class="nav-link" data-page="soundboard">soundboard</a></li>
-                    <li><a href="#" class="nav-link" data-page="community">community</a></li>
-                </ul>
-            </nav>
+<div class="wrap">
+  <div class="card" role="application" aria-label="vibemod">
+    <h1>vibemod</h1>
+    <p class="sub">voice changer • simple • sleek</p>
+
+    <div class="controls">
+      <div class="row">
+        <select id="voiceSelect" aria-label="select voice">
+          <option value="">loading voices…</option>
+        </select>
+        <button id="refresh" class="btn btn-ghost small">refresh</button>
+      </div>
+
+      <div class="row">
+        <button id="toggle" class="btn btn-primary small flex1">activate</button>
+        <button id="bypass" class="btn btn-ghost small">bypass</button>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <label>pitch</label>
+          <input id="pitch" type="range" min="-12" max="12" value="0" step="0.1" />
         </div>
-    </header>
-
-    <main>
-        <div class="container">
-            <!-- Voice Changer Page -->
-            <div id="voice-changer" class="page active">
-                <h1>Transform Your Voice</h1>
-                <p>Record your voice and transform it into your favorite characters or celebrities.</p>
-                
-                <div class="card">
-                    <h3>Select a Voice</h3>
-                    <div class="voice-selector">
-                        <div class="voice-option" data-voice="darth-vader">
-                            <div class="voice-icon">\ud83d\udc79</div>
-                            <div class="voice-name">Darth Vader</div>
-                        </div>
-                        <div class="voice-option" data-voice="robot">
-                            <div class="voice-icon">\ud83e\udd16</div>
-                            <div class="voice-name">Robot</div>
-                        </div>
-                        <div class="voice-option" data-voice="chipmunk">
-                            <div class="voice-icon">\ud83d\udc3f\ufe0f</div>
-                            <div class="voice-name">Chipmunk</div>
-                        </div>
-                        <div class="voice-option" data-voice="alien">
-                            <div class="voice-icon">\ud83d\udc7d</div>
-                            <div class="voice-name">Alien</div>
-                        </div>
-                        <div class="voice-option" data-voice="deep">
-                            <div class="voice-icon">\ud83c\udfad</div>
-                            <div class="voice-name">Deep Voice</div>
-                        </div>
-                        <div class="voice-option" data-voice="helium">
-                            <div class="voice-icon">\ud83c\udf88</div>
-                            <div class="voice-name">Helium</div>
-                        </div>
-                        <div class="voice-option" data-voice="cave">
-                            <div class="voice-icon">\ud83c\udfde\ufe0f</div>
-                            <div class="voice-name">Cave</div>
-                        </div>
-                        <div class="voice-option" data-voice="morgan">
-                            <div class="voice-icon">\ud83c\udf99\ufe0f</div>
-                            <div class="voice-name">Morgan Freeman</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>Record Your Voice</h3>
-                    <div class="audio-visualizer">
-                        <div class="visualizer-bars" id="visualizer">
-                            <!-- Visualizer bars will be added dynamically -->
-                        </div>
-                    </div>
-                    
-                    <div class="record-controls">
-                        <button class="btn btn-outline" id="play-btn">
-                            <span class="icon icon-play"></span> Play
-                        </button>
-                        <div class="record-btn" id="record-btn">
-                            <span class="icon icon-mic"></span>
-                        </div>
-                        <button class="btn btn-outline" id="save-btn">Save</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Soundboard Page -->
-            <div id="soundboard" class="page">
-                <h1>Soundboard</h1>
-                <p>Play and customize your favorite sound effects.</p>
-                
-                <div class="search-bar">
-                    <input type="text" class="search-input" placeholder="Search sounds...">
-                    <button class="search-btn">
-                        <span class="icon icon-search"></span>
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <h3>Popular Sounds</h3>
-                    <div class="sound-grid" id="popular-sounds">
-                        <div class="loading">
-                            <div class="loading-spinner"></div>
-                        </div>
-                        <!-- Sound cards will be loaded dynamically -->
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Categories</h3>
-                    <div class="filter-tabs">
-                        <div class="filter-tab active" data-category="all">All</div>
-                        <div class="filter-tab" data-category="memes">Memes</div>
-                        <div class="filter-tab" data-category="games">Games</div>
-                        <div class="filter-tab" data-category="movies">Movies</div>
-                        <div class="filter-tab" data-category="animals">Animals</div>
-                        <div class="filter-tab" data-category="music">Music</div>
-                        <div class="filter-tab" data-category="cartoons">Cartoons</div>
-                    </div>
-                    
-                    <div class="sound-grid" id="category-sounds">
-                        <!-- Sound cards will be loaded dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Community Sounds Page -->
-            <div id="community" class="page">
-                <h1>Community Sounds</h1>
-                <p>Discover and share sounds created by the community.</p>
-                
-                <div class="search-bar">
-                    <input type="text" class="search-input" placeholder="Search community sounds...">
-                    <button class="search-btn">
-                        <span class="icon icon-search"></span>
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <h3>Trending Sounds</h3>
-                    <div class="filter-tabs">
-                        <div class="filter-tab active" data-filter="trending">Trending</div>
-                        <div class="filter-tab" data-filter="new">New</div>
-                        <div class="filter-tab" data-filter="top">Top Rated</div>
-                    </div>
-                    
-                    <div id="community-sounds-list">
-                        <div class="loading">
-                            <div class="loading-spinner"></div>
-                        </div>
-                        <!-- Community sounds will be loaded dynamically -->
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Upload Your Sound</h3>
-                    <p>Share your creations with the vibemod community.</p>
-                    <button class="btn" id="upload-btn">Upload Sound</button>
-                </div>
-            </div>
+        <div style="width:10px"></div>
+        <div style="flex:1">
+          <label>volume</label>
+          <input id="volume" type="range" min="0" max="200" value="100" step="1" />
         </div>
-    </main>
+      </div>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 vibemod. All rights reserved.</p>
-        </div>
-    </footer>
+      <div>
+        <label>soundboard</label>
+        <div id="soundboard" class="soundboard slab muted">loading…</div>
+      </div>
 
-    <script>
-        // Navigation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Navigation functionality
-            const navLinks = document.querySelectorAll('.nav-link');
-            const pages = document.querySelectorAll('.page');
-            
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Remove active class from all links and pages
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    pages.forEach(p => p.classList.remove('active'));
-                    
-                    // Add active class to clicked link
-                    this.classList.add('active');
-                    
-                    // Show corresponding page
-                    const pageName = this.getAttribute('data-page');
-                    document.getElementById(pageName).classList.add('active');
-                });
-            });
-            
-            // Voice Changer functionality
-            const voiceOptions = document.querySelectorAll('.voice-option');
-            const recordBtn = document.getElementById('record-btn');
-            const playBtn = document.getElementById('play-btn');
-            const saveBtn = document.getElementById('save-btn');
-            const visualizer = document.getElementById('visualizer');
-            
-            // Create visualizer bars
-            for (let i = 0; i < 50; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'visualizer-bar';
-                bar.style.height = '0px';
-                visualizer.appendChild(bar);
-            }
-            
-            // Voice selection
-            voiceOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    voiceOptions.forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    
-                    // In a real app, we would set the selected voice here
-                    const selectedVoice = this.getAttribute('data-voice');
-                    console.log('Selected voice:', selectedVoice);
-                });
-            });
-            
-            // Recording state
-            let isRecording = false;
-            let audioContext;
-            let mediaRecorder;
-            let audioChunks = [];
-            let audioStream;
-            let animationId;
-            
-            // Record button functionality
-            recordBtn.addEventListener('click', async function() {
-                if (!isRecording) {
-                    // Start recording
-                    try {
-                        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        const source = audioContext.createMediaStreamSource(audioStream);
-                        const analyser = audioContext.createAnalyser();
-                        analyser.fftSize = 256;
-                        source.connect(analyser);
-                        
-                        mediaRecorder = new MediaRecorder(audioStream);
-                        audioChunks = [];
-                        
-                        mediaRecorder.ondataavailable = (event) => {
-                            audioChunks.push(event.data);
-                        };
-                        
-                        mediaRecorder.start();
-                        isRecording = true;
-                        recordBtn.classList.add('recording');
-                        recordBtn.querySelector('.icon').classList.remove('icon-mic');
-                        recordBtn.querySelector('.icon').classList.add('icon-stop');
-                        
-                        // Visualizer animation
-                        const bufferLength = analyser.frequencyBinCount;
-                        const dataArray = new Uint8Array(bufferLength);
-                        const bars = document.querySelectorAll('.visualizer-bar');
-                        
-                        const animateVisualizer = () => {
-                            analyser.getByteFrequencyData(dataArray);
-                            
-                            for (let i = 0; i < bars.length; i++) {
-                                const index = Math.floor(i * (bufferLength / bars.length));
-                                const value = dataArray[index];
-                                const height = value * 0.5;
-                                bars[i].style.height = `${height}px`;
-                            }
-                            
-                            animationId = requestAnimationFrame(animateVisualizer);
-                        };
-                        
-                        animateVisualizer();
-                        
-                    } catch (err) {
-                        console.error('Error accessing microphone:', err);
-                        alert('Error accessing microphone. Please ensure you have granted permission.');
-                    }
-                } else {
-                    // Stop recording
-                    mediaRecorder.stop();
-                    isRecording = false;
-                    recordBtn.classList.remove('recording');
-                    recordBtn.querySelector('.icon').classList.remove('icon-stop');
-                    recordBtn.querySelector('.icon').classList.add('icon-mic');
-                    
-                    // Stop visualizer animation
-                    cancelAnimationFrame(animationId);
-                    
-                    // Reset visualizer bars
-                    const bars = document.querySelectorAll('.visualizer-bar');
-                    bars.forEach(bar => {
-                        bar.style.height = '0px';
-                    });
-                    
-                    // Stop audio tracks
-                    audioStream.getTracks().forEach(track => track.stop());
-                    
-                    // Process the recording with VoiceMod API
-                    // In a real app, we would send the audio to the VoiceMod API here
-                    console.log('Recording stopped, processing with VoiceMod API...');
-                    
-                    // Simulate API processing
-                    setTimeout(() => {
-                        console.log('Voice processing complete!');
-                        playBtn.disabled = false;
-                        saveBtn.disabled = false;
-                    }, 1000);
-                }
-            });
-            
-            // Play button functionality
-            playBtn.addEventListener('click', function() {
-                if (audioChunks.length === 0) return;
-                
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                audio.play();
-                
-                // Animate visualizer during playback
-                const bars = document.querySelectorAll('.visualizer-bar');
-                let playbackAnimation;
-                
-                const animatePlayback = () => {
-                    for (let i = 0; i < bars.length; i++) {
-                        const height = Math.random() * 50;
-                        bars[i].style.height = `${height}px`;
-                    }
-                    
-                    playbackAnimation = requestAnimationFrame(animatePlayback);
-                };
-                
-                animatePlayback();
-                
-                audio.onended = () => {
-                    cancelAnimationFrame(playbackAnimation);
-                    bars.forEach(bar => {
-                        bar.style.height = '0px';
-                    });
-                };
-            });
-            
-            // Save button functionality
-            saveBtn.addEventListener('click', function() {
-                if (audioChunks.length === 0) return;
-                
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                
-                const a = document.createElement('a');
-                a.href = audioUrl;
-                a.download = 'vibemod-voice.webm';
-                a.click();
-            });
-            
-            // Soundboard functionality
-            // Simulate loading sounds from API
-            setTimeout(() => {
-                const popularSounds = document.getElementById('popular-sounds');
-                popularSounds.innerHTML = '';
-                
-                // Sample sound data (in a real app, this would come from the API)
-                const sounds = [
-                    { name: 'Bruh', category: 'memes', icon: '\ud83d\ude2e' },
-                    { name: 'Airhorn', category: 'memes', icon: '\ud83d\udce2' },
-                    { name: 'Sad Trombone', category: 'music', icon: '\ud83c\udfba' },
-                    { name: 'Wilhelm Scream', category: 'movies', icon: '\ud83c\udfac' },
-                    { name: 'Applause', category: 'general', icon: '\ud83d\udc4f' },
-                    { name: 'Crickets', category: 'animals', icon: '\ud83e\udd97' },
-                    { name: 'Mario Jump', category: 'games', icon: '\ud83c\udfae' },
-                    { name: 'Explosion', category: 'effects', icon: '\ud83d\udca5' }
-                ];
-                
-                sounds.forEach(sound => {
-                    const soundCard = document.createElement('div');
-                    soundCard.className = 'sound-card';
-                    soundCard.innerHTML = `
-                        <div class="sound-icon">${sound.icon}</div>
-                        <div class="sound-name">${sound.name}</div>
-                        <div class="sound-category">${sound.category}</div>
-                        <div class="sound-play">
-                            <span class="icon icon-play"></span>
-                        </div>
-                    `;
-                    
-                    soundCard.addEventListener('click', function() {
-                        // In a real app, we would play the sound here
-                        console.log(`Playing sound: ${sound.name}`);
-                        
-                        // Simulate sound playing
-                        const playIcon = this.querySelector('.sound-play');
-                        playIcon.style.opacity = '1';
-                        setTimeout(() => {
-                            playIcon.style.opacity = '0';
-                        }, 500);
-                    });
-                    
-                    popularSounds.appendChild(soundCard);
-                });
-                
-                // Load category sounds
-                const categorySounds = document.getElementById('category-sounds');
-                categorySounds.innerHTML = '';
-                
-                // Add some sounds to the category section
-                for (let i = 0; i < 6; i++) {
-                    const sound = sounds[i % sounds.length];
-                    const soundCard = document.createElement('div');
-                    soundCard.className = 'sound-card';
-                    soundCard.innerHTML = `
-                        <div class="sound-icon">${sound.icon}</div>
-                        <div class="sound-name">${sound.name}</div>
-                        <div class="sound-category">${sound.category}</div>
-                        <div class="sound-play">
-                            <span class="icon icon-play"></span>
-                        </div>
-                    `;
-                    
-                    soundCard.addEventListener('click', function() {
-                        // In a real app, we would play the sound here
-                        console.log(`Playing sound: ${sound.name}`);
-                        
-                        // Simulate sound playing
-                        const playIcon = this.querySelector('.sound-play');
-                        playIcon.style.opacity = '1';
-                        setTimeout(() => {
-                            playIcon.style.opacity = '0';
-                        }, 500);
-                    });
-                    
-                    categorySounds.appendChild(soundCard);
-                }
-            }, 1500);
-            
-            // Filter tabs functionality
-            const filterTabs = document.querySelectorAll('.filter-tab');
-            
-            filterTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabGroup = this.parentElement;
-                    tabGroup.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // In a real app, we would filter the sounds based on the selected category
-                    const category = this.getAttribute('data-category');
-                    const filter = this.getAttribute('data-filter');
-                    console.log('Selected category:', category || filter);
-                });
-            });
-            
-            // Community sounds functionality
-            // Simulate loading community sounds from API
-            setTimeout(() => {
-                const communityList = document.getElementById('community-sounds-list');
-                communityList.innerHTML = '';
-                
-                // Sample community sound data (in a real app, this would come from the API)
-                const communitySounds = [
-                    { name: 'Epic Fail Sound', creator: 'SoundMaster', rating: 4.8, plays: 12500 },
-                    { name: 'Funny Cat Meow', creator: 'AnimalLover', rating: 4.5, plays: 8700 },
-                    { name: 'Dramatic Entrance', creator: 'MovieBuff', rating: 4.9, plays: 15200 },
-                    { name: 'Retro Game Over', creator: 'GameNerd', rating: 4.7, plays: 10300 },
-                    { name: 'Spooky Ambience', creator: 'HorrorFan', rating: 4.6, plays: 9800 }
-                ];
-                
-                communitySounds.forEach(sound => {
-                    const soundElement = document.createElement('div');
-                    soundElement.className = 'community-sound';
-                    soundElement.innerHTML = `
-                        <div class="sound-info">
-                            <div class="sound-name">${sound.name}</div>
-                            <div class="sound-category">By ${sound.creator}</div>
-                            <div class="sound-rating">
-                                <span>${sound.rating}</span>
-                                <span class="icon">\u2b50</span>
-                                <span>${sound.plays.toLocaleString()} plays</span>
-                            </div>
-                        </div>
-                        <div class="sound-actions">
-                            <button class="btn btn-outline">
-                                <span class="icon icon-play"></span>
-                            </button>
-                            <button class="btn btn-outline">Add</button>
-                        </div>
-                    `;
-                    
-                    communityList.appendChild(soundElement);
-                });
-            }, 1500);
-            
-            // Upload button functionality
-            const uploadBtn = document.getElementById('upload-btn');
-            
-            uploadBtn.addEventListener('click', function() {
-                alert('Upload functionality would be implemented in the full version.');
-            });
-        });
+      <div class="row">
+        <div class="status" id="status">ws: disconnected</div>
+      </div>
 
-        // VoiceMod API Integration (Simulated)
-        class VoiceModAPI {
-            constructor(apiKey) {
-                this.apiKey = apiKey;
-                this.baseUrl = 'https://control-api.voicemod.net/';
-                console.log('VoiceMod API initialized with key:', apiKey);
-            }
-            
-            async getVoices() {
-                // In a real app, this would make an actual API call
-                console.log('Fetching available voices from VoiceMod API...');
-                
-                // Simulate API response
-                return [
-                    { id: 'darth-vader', name: 'Darth Vader', category: 'Movies' },
-                    { id: 'robot', name: 'Robot', category: 'Sci-Fi' },
-                    { id: 'chipmunk', name: 'Chipmunk', category: 'Animals' },
-                    { id: 'alien', name: 'Alien', category: 'Sci-Fi' },
-                    { id: 'deep', name: 'Deep Voice', category: 'Effects' },
-                    { id: 'helium', name: 'Helium', category: 'Effects' },
-                    { id: 'cave', name: 'Cave', category: 'Environment' },
-                    { id: 'morgan', name: 'Morgan Freeman', category: 'Celebrities' }
-                ];
-            }
-            
-            async processAudio(audioBlob, voiceId) {
-                // In a real app, this would send the audio to the VoiceMod API
-                console.log(`Processing audio with voice ID: ${voiceId}`);
-                
-                // Simulate processing time
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        console.log('Audio processing complete');
-                        resolve(audioBlob); // In a real app, this would be the processed audio
-                    }, 1000);
-                });
-            }
-        }
-        
-        // Initialize VoiceMod API
-        const voiceModAPI = new VoiceModAPI('controlapi-bqao9iozL');
-        
-        // Soundboard API Integration (Simulated)
-        class SoundboardAPI {
-            constructor() {
-                this.baseUrl = '/v1/soundboards';
-                console.log('Soundboard API initialized');
-            }
-            
-            async searchSoundboards(options = {}) {
-                // In a real app, this would make an actual API call
-                console.log('Searching soundboards with options:', options);
-                
-                const defaultOptions = {
-                    type: 0,
-                    value: null,
-                    quantity: 4,
-                    index: 0,
-                    search: null,
-                    sort: 1,
-                    rating: 0
-                };
-                
-                const searchOptions = { ...defaultOptions, ...options };
-                
-                // Simulate API response
-                return {
-                    error: false,
-                    errorMessage: '',
-                    soundboards: [
-                        { id: 'memes-2023', name: 'Top Memes 2023' },
-                        { id: 'gaming-sfx', name: 'Gaming Sound Effects' },
-                        { id: 'movie-quotes', name: 'Famous Movie Quotes' },
-                        { id: 'animal-sounds', name: 'Animal Sounds Collection' }
-                    ]
-                };
-            }
-            
-            async getSoundboardDetails(id) {
-                // In a real app, this would make an actual API call
-                console.log(`Fetching details for soundboard ID: ${id}`);
-                
-                // Simulate API response
-                const soundboards = {
-                    'memes-2023': {
-                        id: 'memes-2023',
-                        name: 'Top Memes 2023',
-                        sounds: [
-                            { id: 'bruh', name: 'Bruh', category: 'memes' },
-                            { id: 'airhorn', name: 'Airhorn', category: 'memes' },
-                            { id: 'oof', name: 'Oof', category: 'memes' },
-                            { id: 'wow', name: 'Wow', category: 'memes' }
-                        ]
-                    },
-                    'gaming-sfx': {
-                        id: 'gaming-sfx',
-                        name: 'Gaming Sound Effects',
-                        sounds: [
-                            { id: 'mario-jump', name: 'Mario Jump', category: 'games' },
-                            { id: 'sonic-ring', name: 'Sonic Ring', category: 'games' },
-                            { id: 'pacman', name: 'Pacman', category: 'games' },
-                            { id: 'level-up', name: 'Level Up', category: 'games' }
-                        ]
-                    }
-                };
-                
-                return soundboards[id] || { error: true, errorMessage: 'Soundboard not found' };
-            }
-        }
-        
-        // Initialize Soundboard API
-        const soundboardAPI = new SoundboardAPI();
-    </script>
+      <div class="raw" id="raw">raw messages will appear here (debug)</div>
+
+      <footer class="muted">lowercase • pink & black • embed clientKey (insecure) — docs: control-api.voicemod.net</footer>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  vibemod single-file client
+  - connects to Voicemod Control API over WebSocket (wss://control-api.voicemod.net/)
+  - authenticates with clientKey below
+  - requests voice list, populates UI
+  - sends pitch/volume/activate messages
+  IMPORTANT: If Voicemod expects different "type" strings or payload shapes, update the send(...) calls
+  to match the docs. Incoming messages are appended to the "raw" debug area so you can adapt quickly.
+*/
+
+/* ---------- CONFIG (your clientKey) ---------- */
+const CLIENT_KEY = "controlapi-bqao9iozL"; // ← your provided clientKey (you supplied this)
+const WS_URL = "wss://control-api.voicemod.net/"; // control api websocket base
+
+/* ---------- UI refs ---------- */
+const statusEl = document.getElementById('status');
+const rawEl = document.getElementById('raw');
+const voiceSelect = document.getElementById('voiceSelect');
+const refreshBtn = document.getElementById('refresh');
+const toggleBtn = document.getElementById('toggle');
+const bypassBtn = document.getElementById('bypass');
+const pitchSlider = document.getElementById('pitch');
+const volumeSlider = document.getElementById('volume');
+const soundboardEl = document.getElementById('soundboard');
+
+let ws;
+let connected = false;
+let active = false;
+let voices = [];
+let memes = [];
+
+/* small helper to append debug text */
+function logRaw(label, obj){
+  const t = document.createElement('div');
+  const ts = new Date().toLocaleTimeString();
+  t.textContent = `[${ts}] ${label}: ${typeof obj === 'string' ? obj : JSON.stringify(obj)}`;
+  rawEl.prepend(t);
+}
+
+/* connection + basic protocol (best-effort) */
+function connect(){
+  setStatus('connecting…');
+  try{
+    ws = new WebSocket(WS_URL);
+  }catch(e){
+    setStatus('ws error');
+    logRaw('error', String(e));
+    return;
+  }
+
+  ws.addEventListener('open', ()=>{
+    connected = true;
+    setStatus('connected — authenticating');
+    // try authenticate (many websockets for control APIs accept an auth message)
+    const authMsg = {
+      type: "authenticate",
+      payload: {
+        clientKey: CLIENT_KEY
+      }
+    };
+    sendRaw(authMsg);
+    // also attempt alternative auth forms (some offerings accept "auth" field or query) if needed:
+    // If the server expects query param (?clientKey=...) that must be added to WS_URL prior to connect.
+  });
+
+  ws.addEventListener('message', (ev)=>{
+    let data = ev.data;
+    try { data = JSON.parse(ev.data); } catch(e){}
+    logRaw('recv', data);
+    // attempt to detect auth success
+    if(data && (data.type === 'auth_ok' || data.type === 'authenticated' || (data.event && data.event === 'auth_ok'))){
+      setStatus('authenticated — loading voices');
+      requestVoices();
+    }
+    // some servers reply with a 'voices' payload
+    if(data && (data.type === 'voices' || data.type === 'listVoices' || data.event === 'voices_list')){
+      voices = data.payload || data.voices || data.items || [];
+      populateVoices();
+    }
+    // memes / soundboard
+    if(data && (data.type === 'memes' || data.type === 'soundboard' || data.event === 'memes_list')){
+      memes = data.payload || data.memes || [];
+      populateSoundboard();
+    }
+  });
+
+  ws.addEventListener('close', ()=>{
+    connected = false;
+    active = false;
+    setStatus('disconnected — reconnecting in 2s');
+    logRaw('ws', 'closed — retrying');
+    setTimeout(connect, 2000);
+  });
+
+  ws.addEventListener('error', (e)=>{
+    logRaw('ws-error', String(e));
+    setStatus('ws error');
+  });
+}
+
+/* wrappers */
+function sendRaw(obj){
+  try{
+    const s = JSON.stringify(obj);
+    if(ws && ws.readyState === WebSocket.OPEN){
+      ws.send(s);
+      logRaw('send', obj);
+    }else{
+      logRaw('send-fail', obj);
+    }
+  }catch(e){
+    logRaw('send-err', String(e));
+  }
+}
+
+/* request voices — many control APIs have a simple command name; try a few likely names */
+function requestVoices(){
+  // try a few variants (safe best-effort)
+  sendRaw({type:'listVoices'});
+  sendRaw({type:'getVoices'});
+  sendRaw({type:'voices'});
+  sendRaw({type:'get_voices'});
+  // also request soundboard
+  sendRaw({type:'listMemes'});
+  sendRaw({type:'getMemes'});
+}
+
+/* populate UI from voices[] (best-effort mapping) */
+function populateVoices(){
+  voiceSelect.innerHTML = '';
+  if(!voices || voices.length === 0){
+    voiceSelect.innerHTML = '<option value="">no voices found</option>';
+    return;
+  }
+  const blank = document.createElement('option'); blank.value=''; blank.textContent='choose voice';
+  voiceSelect.appendChild(blank);
+  voices.forEach(v=>{
+    // try multiple common property names for id and friendly name
+    const id = v.id || v.key || v.name || v.voiceId || JSON.stringify(v);
+    const name = (v.name || v.friendlyName || v.displayName || v.title || id).toString().toLowerCase();
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = name;
+    voiceSelect.appendChild(opt);
+  });
+}
+
+/* soundboard */
+function populateSoundboard(){
+  soundboardEl.innerHTML = '';
+  if(!memes || memes.length === 0){
+    soundboardEl.innerHTML = '<div class="muted">no sounds</div>';
+    return;
+  }
+  memes.forEach(m=>{
+    const id = m.id || m.key || m.name;
+    const name = (m.name || m.title || id).toString().toLowerCase();
+    const pad = document.createElement('div');
+    pad.className='pad';
+    pad.textContent = name;
+    pad.onclick = async ()=>{
+      pad.classList.add('playing');
+      sendPlayMeme(id);
+      setTimeout(()=>pad.classList.remove('playing'), 900);
+    };
+    soundboardEl.appendChild(pad);
+  });
+}
+
+/* commands */
+function setVoice(voiceId){
+  // example control messages — update if your docs use different names
+  sendRaw({type:'selectVoice', payload:{voiceId}});
+  // also try alternative messages:
+  sendRaw({type:'setVoice', payload:{voice: voiceId}});
+  sendRaw({type:'voice.set', payload:{id: voiceId}});
+}
+function setPitch(p){
+  sendRaw({type:'setPitch', payload:{value: Number(p)}});
+  sendRaw({type:'pitch', payload:{value: Number(p)}});
+}
+function setVolume(v){
+  sendRaw({type:'setVolume', payload:{value: Number(v)}});
+  sendRaw({type:'volume', payload:{value: Number(v)}});
+}
+function toggleActive(enable){
+  if(enable){
+    sendRaw({type:'activateVoice'});
+    sendRaw({type:'voice.on'});
+  } else {
+    sendRaw({type:'deactivateVoice'});
+    sendRaw({type:'voice.off'});
+  }
+}
+function sendPlayMeme(memeId){
+  sendRaw({type:'playMeme', payload:{memeId}});
+  sendRaw({type:'play_sound', payload:{id:memeId}});
+}
+
+/* UI handlers */
+refreshBtn.onclick = ()=> requestVoices();
+
+voiceSelect.addEventListener('change', ()=>{
+  const v = voiceSelect.value;
+  if(!v) return;
+  setVoice(v);
+});
+
+toggleBtn.addEventListener('click', ()=>{
+  active = !active;
+  toggleBtn.textContent = active ? 'deactivate' : 'activate';
+  toggleActive(active);
+});
+
+bypassBtn.addEventListener('click', ()=>{
+  // Try to toggle bypass / hear-myself
+  sendRaw({type:'toggleBypass'});
+  sendRaw({type:'bypass'});
+});
+
+pitchSlider.addEventListener('input', (e)=>{
+  const val = e.target.value;
+  setPitch(val);
+});
+
+volumeSlider.addEventListener('input', (e)=>{
+  setVolume(e.target.value);
+});
+
+/* status helper */
+function setStatus(t){
+  statusEl.textContent = 'ws: ' + t;
+}
+
+/* initialize */
+setStatus('idle');
+connect();
+</script>
 </body>
 </html>
